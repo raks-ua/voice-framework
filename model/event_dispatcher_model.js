@@ -87,7 +87,7 @@ class EventDispatcherHandler {
             if (this.stopped) throw {err: this.error, event: chain.event};
             if(this.chain.length > index + 1) this.processChain(index + 1);
         }).catch((err) => {
-            console.log('err', err);
+            //console.log('[processChain err]', err);
             this.dispatcher.handleRequestError(err).then(() => {
                 if(this.chain.length > index + 1) this.processChain(index + 1);
             });
@@ -211,6 +211,7 @@ class EventDispatcher {
         let h;
         //console.log('FINAL', event, '[CONTEXT]', context, '[/CONTEXT]', '[CB]', callback, '[/CB]');
         let appCallback = (error, data) => {
+
             if (error) {
                 return h.stop(error);
             }

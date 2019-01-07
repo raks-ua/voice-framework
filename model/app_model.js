@@ -3,6 +3,7 @@
 let AlexaModel = require('./alexa_model');
 let GoogleModel = require('./google_model');
 let ClovaModel = require('./clova_model');
+let RPCModel = require('./rpc_model');
 let Handler = require('../entity/handler/handler');
 let Router = require('../entity/router/router');
 let UnknownRouter = require('../entity/router/unknown-router');
@@ -23,6 +24,7 @@ class AppModel {
         self.addApp('alexa', new AlexaModel(self.config.alexa.appId, self.appProcess));
         self.addApp('google', new GoogleModel(self.appProcess));
         self.addApp('clova', new ClovaModel(self.appProcess));
+        self.addApp('rpc', new RPCModel(self.appProcess));
     }
 
     initHandlers() {

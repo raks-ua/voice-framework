@@ -7,6 +7,7 @@ let intentTypes = {
     TYPE_AUDIO: 'audio',
     TYPE_VIDEO: 'video',
     TYPE_EVENT: 'event',
+    TYPE_API: 'api',
     TYPE_ERROR: 'error'
 };
 

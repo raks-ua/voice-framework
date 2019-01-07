@@ -4,7 +4,7 @@ class Message {
 
     /**
      *
-     * @param message {String}
+     * @param message {String|Object}
      */
     constructor(message) {
         this.message = message;
@@ -16,7 +16,7 @@ class Message {
 
     /**
      *
-     * @returns {string}
+     * @returns {string|Object}
      */
     getMessage(type = 'ssml') {
         if (type === 'ssml') {
@@ -36,7 +36,7 @@ class Message {
 
     /**
      *
-     * @param message {String}
+     * @param message {String|Object}
      */
     setMessage(message) {
         this.message = message;
@@ -148,6 +148,14 @@ class Message {
             this.messageRepromptSSML += ' ' + msg;
         }
         return this;
+    }
+
+    getData(){
+        return this.getMessage('data') || {};
+    }
+
+    setData(data){
+        this.setMessage(data);
     }
 }
 

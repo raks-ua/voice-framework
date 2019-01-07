@@ -18,6 +18,7 @@ class Request {
         this.intent = data.intent;
         this.device = data.device;
         this.lang = data.lang;
+        this.created = Date.now();
     }
 
 
@@ -135,6 +136,10 @@ class Request {
 
     hasDisplay(){
         return false;
+    }
+
+    getResponseTime(){
+        return (Date.now() - this.created) / 1000;
     }
 }
 
