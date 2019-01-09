@@ -2,7 +2,7 @@
 
 const Response = require("../response");
 const Message = require("../message/message");
-const {AlexaCard} = require("../card/alexa_card");
+const CardAlexa = require("./card_alexa");
 
 let self;
 
@@ -58,7 +58,7 @@ class ResponseAlexa extends Response {
 
     /**
      *
-     * @param {AlexaCard} card
+     * @param {CardAlexa} card
      */
     setCard(card) {
         if(card.isLinking()){

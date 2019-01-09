@@ -1,4 +1,3 @@
-cat directive.js
 class Directive {
 
 }

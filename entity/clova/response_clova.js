@@ -2,7 +2,6 @@
 
 const Response = require("../response");
 const Message = require("../message/message");
-const {AlexaCard} = require("../card/alexa_card");
 const AudioPlayDirective = require("../directive/audio-play-directive");
 const uuid = require('uuid').v4;
 
@@ -20,14 +19,6 @@ class ResponseClova extends Response {
      */
     addDirective(directive) {
         this.directives.push(directive);
-    }
-
-    /**
-     *
-     * @param {AlexaCard} card
-     */
-    setCard(card) {
-        super.setCard(card);
     }
 
     shouldEndSession(should) {
