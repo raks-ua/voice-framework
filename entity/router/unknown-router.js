@@ -4,4 +4,4 @@ class UnknownRouter extends Router {
 
 }
 
-module.exports = Router;
+module.exports = UnknownRouter;

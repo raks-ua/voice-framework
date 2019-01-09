@@ -1,6 +1,6 @@
 'use strict';
 
-let Card = require('./card');
+let Card = require('../card/card');
 
 const ALEXA_CARD_TYPE_SIMPLE = 'Simple';
 const ALEXA_CARD_TYPE_STANDARD = 'Standard';
@@ -8,7 +8,8 @@ const ALEXA_CARD_TYPE_LINK_ACCOUNT = 'LinkAccount';
 
 let types = [ALEXA_CARD_TYPE_SIMPLE, ALEXA_CARD_TYPE_STANDARD, ALEXA_CARD_TYPE_LINK_ACCOUNT];
 
-class AlexaCard extends Card {
+//TODO: move types checking to alexa_card_model
+class CardAlexa extends Card {
 
     constructor(type) {
         super();
@@ -56,23 +57,6 @@ class AlexaCard extends Card {
     getImages(){
         return this.images;
     }
-
-    isLinking(){
-        return this.type === ALEXA_CARD_TYPE_LINK_ACCOUNT;
-    }
-
-    isSimple(){
-        return this.type === ALEXA_CARD_TYPE_SIMPLE;
-    }
-
-    isStandard(){
-        return this.type === ALEXA_CARD_TYPE_STANDARD;
-    }
 }
 
-module.exports = {
-    AlexaCard,
-    ALEXA_CARD_TYPE_SIMPLE,
-    ALEXA_CARD_TYPE_STANDARD,
-    ALEXA_CARD_TYPE_LINK_ACCOUNT
-};
+module.exports = CardAlexa;
