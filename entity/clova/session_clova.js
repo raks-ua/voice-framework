@@ -37,7 +37,7 @@ class SessionClova extends Session {
 
     setParam(key, val){
         this.attributes[key] = val;
-        //console.log('[attributes]', this.attributes);
+        console.log('[attributes]', this.attributes);
         super.setParam(key, val);
     }
 

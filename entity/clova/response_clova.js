@@ -3,6 +3,11 @@
 const Response = require("../response");
 const Message = require("../message/message");
 const AudioPlayDirective = require("../directive/audio-play-directive");
+const AudioPauseDirective = require("../directive/audio-pause-directive");
+const AudioResumeDirective = require("../directive/audio-resume-directive");
+const AudioStopDirective = require("../directive/audio-stop-directive");
+const RenderPlayerInfoDirective = require("./directive/render-player-info-directive.js");
+
 const uuid = require('uuid').v4;
 
 let self;
@@ -14,12 +19,22 @@ class ResponseClova extends Response {
     }
 
     /**
+     * Finishing session after message
+     * @param url {String}
+     */
+    tellUrl(url) {
+        this.tellUrl = url;
+        this.shouldEndSession(true);
+    }
+
+    /**
      *
      * @param {Object} directive
      */
     addDirective(directive) {
         this.directives.push(directive);
     }
+
 
     shouldEndSession(should) {
         super.shouldEndSession(should);
@@ -74,27 +89,70 @@ class ResponseClova extends Response {
                     },
                     "playBehavior": directive.getBehaviour(),
                     "source": {
-//                        "logoUrl": directive.getLogoUrl(),
-                        //"logoUrl":"http://static.naver.net/clova/service/native_extensions/sound_serise/img_sound_rain_108.png",
                         "name": directive.getSource().name
                     }
                 }
             };
         }
+
+        if (directive instanceof AudioPauseDirective) {
+            return {
+                "header": {
+		    "namespace": "PlaybackController",
+        	    "name": "Pause"
+                },
+                "payload": {}
+            };
+        }
+	
+        if (directive instanceof AudioResumeDirective) {
+            return {
+                "header": {
+		    "namespace": "PlaybackController",
+        	    "name": "Resume"
+                },
+                "payload": {}
+            };
+        }
+
+        if (directive instanceof AudioStopDirective) {
+            return {
+                "header": {
+		    "namespace": "PlaybackController",
+        	    "name": "Stop"
+                },
+                "payload": {}
+            };
+        }
+
+	if(directive instanceof RenderPlayerInfoDirective){
+	    return directive.getResponse();
+	}
+
     }
 
     convertMessageToSpeech() {
         //TODO
-
-        let speech = {
-            "type": "SimpleSpeech",
-            "values": {
-                "type": "PlainText",
-                "lang": this.getRequest().getLang(),
-                "value": this.message.getMessage('text')
-            }
-        };
-
+        let speech;
+        if(this.message){
+            speech = {
+                "type": "SimpleSpeech",
+                "values": {
+                    "type": "PlainText",
+                    "lang": this.getRequest().getLang(),
+                    "value": this.message.getMessage('text')
+                }
+            };
+        }else if (this.tellUrl){
+            speech = {
+                "type": "SimpleSpeech",
+                "values": {
+                    "type": "URL",
+                    "lang": this.getRequest().getLang(),
+                    "value": this.tellUrl
+                }
+            };
+        }
         return speech;
     }
 
@@ -108,7 +166,7 @@ class ResponseClova extends Response {
             }
         };
 
-        if (this.message) {
+        if (this.message || this.tellUrl) {
             response.response.outputSpeech = this.convertMessageToSpeech();
         }
 

@@ -10,6 +10,7 @@ let RequestClova = require('../entity/clova/request_clova.js');
 let ResponseClova = require('../entity/clova/response_clova.js');
 let DeviceClova = require('../entity/clova/device_clova.js');
 let {intentTypes, intentSubTypes} = require('../entity/intent_types.js');
+let config = require('config');
 
 class ClovaModel {
 
@@ -127,6 +128,11 @@ class ClovaModel {
                 intentClova.setName(event.request.event.name);
                 intentClova.setType(intentTypes.TYPE_AUDIO);
             }
+            if(event.request.event.namespace === 'TemplateRuntime'){
+                intentClova.setName(event.request.event.name);
+                intentClova.setType(intentTypes.TYPE_AUDIO);
+            }
+
         }else if (m = event.request.type.match(/^PlaybackController.(.*)/)) {
             intentClova.setName(m[1]);
             intentClova.setType(this.getIntentType(intentName, event.request.type));
@@ -176,11 +182,11 @@ class ClovaModel {
 
 
 function getCountry(locale) {
-    return 'kr';
+    return config.CLOVA.COUNTRY;
 }
 
 function getLang(locale) {
-    return 'ko';
+    return config.CLOVA.LANG;
 }
 
 module.exports = ClovaModel;
