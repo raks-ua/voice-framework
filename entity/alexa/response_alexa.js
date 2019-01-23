@@ -4,6 +4,9 @@ const Response = require("../response");
 const Message = require("../message/message");
 const CardAlexa = require("./card_alexa");
 
+const AlexaAudioPlayDirective = require("./directive/alexa-audio-play-directive");
+const AudioStopDirective = require("../directive/audio-stop-directive");
+
 let self;
 
 class ResponseAlexa extends Response {
@@ -44,7 +47,10 @@ class ResponseAlexa extends Response {
      * @param message {Message}
      */
     tell(message) {
-        this.response.speak(message.getMessage());
+        let msg = message.getMessage('ssml');
+        msg = msg.replace(/<speak>/ig, '');
+        msg = msg.replace(/<\/speak>/ig, '');
+        this.response.speak(msg);
         super.tell(message);
     }
 
@@ -54,6 +60,13 @@ class ResponseAlexa extends Response {
      */
     addDirective(directive) {
         this.directives.push(directive);
+	if(directive instanceof AlexaAudioPlayDirective){
+	    this.response.audioPlayerPlay(directive.getBehaviour(), directive.getUrl(), directive.getToken(), directive.getExpectedPreviousToken(), directive.getOffsetInMilliseconds());
+	}
+
+	if(directive instanceof AudioStopDirective){
+	    this.response.audioPlayerStop();
+	}
     }
 
     /**
@@ -98,14 +111,9 @@ class ResponseAlexa extends Response {
         this.response._responseObject.response.shouldEndSession = should;
         super.shouldEndSession(should);
     }
-
-    playAudio(userId, url){
-        let token = userId + '_' + (new Date()).getTime();
-        this.response.audioPlayerPlay('REPLACE_ALL', url, token, undefined, 0);
-    }
-
-    stopAudio(){
-        this.response.audioPlayerStop();
+    
+    setResponseObject(obj){
+        this.response._responseObject = obj;
     }
 
     getResponse(){

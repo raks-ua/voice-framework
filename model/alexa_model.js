@@ -169,7 +169,7 @@ class AlexaModel {
             let responseAlexa = new ResponseAlexa({alexa: alexa, request: requestAlexa});
             requestAlexa.setResponse(responseAlexa);
         } catch (err) {
-            //console.log('[ERR]', err);
+            console.log('[ERR]', err);
             throw err;
         }
         return requestAlexa;

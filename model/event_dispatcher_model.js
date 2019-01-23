@@ -209,17 +209,19 @@ class EventDispatcher {
     handleAlexaAppRequest(event, context, callback) {
         let handlerError;
         let h;
-        //console.log('FINAL', event, '[CONTEXT]', context, '[/CONTEXT]', '[CB]', callback, '[/CB]');
         let appCallback = (error, data) => {
-
+//	    console.trace();
+//            console.log('[RES]', callback, error);
             if (error) {
                 return h.stop(error);
             }
             if (handlerError) error = handlerError;
 
-            //console.log('[RES]', callback, error, data);
+//            console.log('[RES]', callback, error, data);
 
-            return callback(error, data);
+//	    console.log('[RES2]', callback);
+
+            callback(error, data);
         };
         h = this.handleAppRequest('alexa', {
             appContext: context,

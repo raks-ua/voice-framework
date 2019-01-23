@@ -28,6 +28,9 @@ const SessionAlexa = require('./entity/alexa/session_alexa.js');
 const UserAlexa = require('./entity/alexa/user_alexa.js');
 const IntentAlexa = require('./entity/alexa/intent_alexa.js');
 const DataAlexa = require('./entity/alexa/data_alexa.js');
+const AlexaAudioPlayDirective = require('./entity/alexa/directive/alexa-audio-play-directive.js');
+
+
 
 const RequestGoogle = require('./entity/google/request_google.js');
 const ResponseGoogle = require('./entity/google/response_google.js');
@@ -76,7 +79,10 @@ module.exports = {
             card: {
                 CardAlexa
             },
-            AlexaCardModel
+            AlexaCardModel,
+	    directives: {
+		AlexaAudioPlayDirective,
+	    }
         },
         google: {
             RequestGoogle,

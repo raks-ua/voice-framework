@@ -23,12 +23,10 @@ class CardAlexa extends Card {
     }
 
     setTitle(title){
-        if(this.isLinking()) throw 'Title not for ' + ALEXA_CARD_TYPE_LINK_ACCOUNT;
         super.setTitle(title);
     }
 
     setContent(content){
-        if(!this.isSimple()) throw 'Content only for ' + ALEXA_CARD_TYPE_SIMPLE;
         this.content = content;
     }
 
@@ -37,7 +35,6 @@ class CardAlexa extends Card {
     }
 
     setText(text){
-        if(!this.isStandard()) throw 'Text only for ' + ALEXA_CARD_TYPE_STANDARD;
         super.setText(text);
     }
 
@@ -57,6 +54,24 @@ class CardAlexa extends Card {
     getImages(){
         return this.images;
     }
+
+    /**
+     *
+     * @param card {CardAlexa}
+     * @returns {boolean}
+     */
+    isLinking(){
+        return this.type === ALEXA_CARD_TYPE_LINK_ACCOUNT;
+    }
+
+    isSimple(){
+        return this.type === ALEXA_CARD_TYPE_SIMPLE;
+    }
+
+    isStandard(){
+        return this.type === ALEXA_CARD_TYPE_STANDARD;
+    }
+
 }
 
 module.exports = CardAlexa;
