@@ -108,6 +108,8 @@ class AppModel {
      * @param request {Request}
      */
     appProcess(request) {
+	//console.log('[appProcess]', request.getResponse().processResolve);
+    
         if (!self.handlerUnknown) {
             self.handlerUnknown = self.makeUnknownHandler();
         }
@@ -116,6 +118,7 @@ class AppModel {
         console.log(`PROCESS HANDLER ${type}-${name}`);
         let handler = self.getHandler(request.getIntent().getType(), request.getIntent().getName());
         self.processHandler(request, handler).then(() => {
+	    //console.log('[AAAA]', request.getResponse().processResolve);
             request.getResponse().processResolve();
         }).catch((err) => {
             console.log('ERR', err);

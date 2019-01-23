@@ -10,11 +10,12 @@ let IntentAlexa = require('../entity/alexa/intent_alexa.js');
 let DataAlexa = require('../entity/alexa/data_alexa.js');
 let {intentTypes, intentSubTypes} = require('../entity/intent_types.js');
 
-const Alexa = require('alexa-sdk');
+const Alexa = require('ask-sdk');
 
 class AlexaModel {
 
     constructor(appId, processCallback) {
+//	console.log('[processCallback]', processCallback);
         self = this;
         this.appId = appId;
         this.processCallback = processCallback;
@@ -52,7 +53,7 @@ class AlexaModel {
             this.initRequest(data, requestAlexa)
         }
 
-        this.initResponse(data, options, requestAlexa);
+        this.initResponse2(data, options, requestAlexa);
         return requestAlexa;
     };
 
@@ -174,6 +175,60 @@ class AlexaModel {
         }
         return requestAlexa;
     }
+
+    /**
+     *
+     * @param data
+     * @param options {Object}
+     * @param requestAlexa {RequestAlexa}
+     * @returns {*}
+     */
+    initResponse2(data, options, requestAlexa) {
+        try {
+	    let responseAlexa;
+	    const RequestInterceptor = {
+		process(handlerInput) {
+		    return new Promise((resolve, reject) => {
+			responseAlexa.setCb(resolve);
+			requestAlexa.getResponse().setResponseBuilder(handlerInput.responseBuilder);
+			self.processCallback(requestAlexa);
+			//TODO: get attributes!!!
+                	//if(requestAlexa.getSession()) requestAlexa.getSession().setAttributes(this.attributes);
+		    });
+		}
+	    };
+
+	    const Handler = {
+		canHandle(handlerInput) {
+		    return true;
+		},
+		handle(handlerInput) {
+		    return handlerInput.responseBuilder.getResponse();
+		}
+	    };
+
+	    const skill = Alexa.SkillBuilders.custom()
+		.addRequestHandlers(Handler)
+		.addRequestInterceptors(RequestInterceptor)
+		.create()
+	    ;
+            responseAlexa = new ResponseAlexa({request: requestAlexa, cc: () => {
+		let res = skill.invoke(data, options.context);
+		res.then((d) => {
+		    options.callback(undefined, d);
+	    	    console.log('[RES]', d);
+		});
+
+	    }});
+            requestAlexa.setResponse(responseAlexa);
+
+        } catch (err) {
+            console.log('[ERR]', err);
+            throw err;
+        }
+        return requestAlexa;
+    }
+
 
 }
 

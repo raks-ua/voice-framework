@@ -9,18 +9,29 @@ const AudioStopDirective = require("../directive/audio-stop-directive");
 
 let self;
 
+/**
+
+https://ask-sdk-for-nodejs.readthedocs.io/en/latest/Building-Response.html
+*/
 class ResponseAlexa extends Response {
 
     constructor(data) {
         super(data);
         self = this;
-        this.alexa = data.alexa;
+//        this.alexa = data.alexa;
+        this.skill = data.skill;
+        this.cc = data.cc;
+
         this.response = undefined;
         this.request = data.request;
     }
 
     setResponseBuilder(responseBuilder){
         this.response = responseBuilder;
+    }
+
+    setCb(cb){
+	this.cb = cb;
     }
 
     /**
@@ -37,7 +48,9 @@ class ResponseAlexa extends Response {
         if(reprompt) {
             reprompt = reprompt.replace(/<speak>/ig, '');
             reprompt = reprompt.replace(/<\/speak>/ig, '');
-            this.response.listen(reprompt);
+//            this.response.listen(reprompt);
+    	    this.response.reprompt(reprompt);
+	    
         }
         super.ask(message);
     }
@@ -61,11 +74,11 @@ class ResponseAlexa extends Response {
     addDirective(directive) {
         this.directives.push(directive);
 	if(directive instanceof AlexaAudioPlayDirective){
-	    this.response.audioPlayerPlay(directive.getBehaviour(), directive.getUrl(), directive.getToken(), directive.getExpectedPreviousToken(), directive.getOffsetInMilliseconds());
+	    this.response.addAudioPlayerPlayDirective(directive.getBehaviour(), directive.getUrl(), directive.getToken(), directive.getExpectedPreviousToken(), directive.getOffsetInMilliseconds());
 	}
 
 	if(directive instanceof AudioStopDirective){
-	    this.response.audioPlayerStop();
+	    this.response.addAudioPlayerStopDirective();
 	}
     }
 
@@ -75,26 +88,28 @@ class ResponseAlexa extends Response {
      */
     setCard(card) {
         if(card.isLinking()){
-            this.response.linkAccountCard();
+            this.response.withLinkAccountCard();
         }else if(card.isStandard()){
             let images = card.getImages();
-            this.response.cardRenderer(card.getTitle(), card.getText(), {
-                smallImageUrl: images.small,
-                largeImageUrl: images.big
-            });
-        }else if(card.isSimple()){
-            this.response.cardRenderer(card.getTitle(), card.getContent());
+	    this.response.withStandardCard(card.getTitle(), card.getText(), images.small, images.big);
+        }else if(card.isSimple()){	    
+	    this.response.withSimpleCard(card.getTitle(), card.getContent());
         }
         super.setCard(card);
     }
 
     sendSuccess() {
-        this.alexa.emit(':responseReady');
+        //this.alexa.emit(':responseReady');
+	//TODO: send to interceptor OK
+	this.cb();
         super.sendSuccess();
     }
 
     sendError(error) {
-        this.alexa.emit(':responseReady');
+        //this.alexa.emit(':responseReady');
+	//TODO: send to interceptor OK
+	this.cb();
+
         super.sendError(error);
     }
 
@@ -103,12 +118,13 @@ class ResponseAlexa extends Response {
      * @returns {Promise<any>}
      */
     process(appHandler, request){
-        this.alexa.execute();
+        //this.alexa.execute();
+        this.cc();
         return super.process();
     }
 
     shouldEndSession(should) {
-        this.response._responseObject.response.shouldEndSession = should;
+        //this.response._responseObject.response.shouldEndSession = should;
         super.shouldEndSession(should);
     }
     
@@ -117,7 +133,8 @@ class ResponseAlexa extends Response {
     }
 
     getResponse(){
-        return this.response._responseObject;
+//        return this.response._responseObject;
+	return this.response.getResponse();
     }
 }
 
