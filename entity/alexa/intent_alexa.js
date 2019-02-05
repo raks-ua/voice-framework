@@ -13,7 +13,6 @@ class IntentAlexa extends Intent {
         if (data.slots) this.setSlots(data.slots);
     }
 
-
     /**
      *
      * @param {Object} slots

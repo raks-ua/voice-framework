@@ -9,6 +9,7 @@ class SessionAlexa extends Session {
         super(data);
         this.isNew = data.isNew;
         this.attributes = {};
+	this.attributesManager = undefined;
     }
 
     /**
@@ -37,10 +38,13 @@ class SessionAlexa extends Session {
 
     setParam(key, val){
         this.attributes[key] = val;
-        //console.log('[attributes]', this.attributes);
+	if(this.attributesManager) this.attributesManager.setSessionAttributes(this.attributes);
         super.setParam(key, val);
     }
 
+    setAttributesManager(attributesManager){
+	this.attributesManager = attributesManager;
+    }
 }
 
 module.exports = SessionAlexa;

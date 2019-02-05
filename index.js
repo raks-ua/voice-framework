@@ -19,6 +19,7 @@ const Card = require('./entity/card/card.js');
 
 const Directive = require('./entity/directive/directive.js');
 const AudioPlayDirective = require('./entity/directive/audio-play-directive.js');
+const AudioStopDirective = require('./entity/directive/audio-stop-directive.js');
 
 const AlexaCardModel = require('./model/alexa_card_model.js');
 const CardAlexa = require('./entity/alexa/card_alexa.js');
@@ -29,8 +30,7 @@ const UserAlexa = require('./entity/alexa/user_alexa.js');
 const IntentAlexa = require('./entity/alexa/intent_alexa.js');
 const DataAlexa = require('./entity/alexa/data_alexa.js');
 const AlexaAudioPlayDirective = require('./entity/alexa/directive/alexa-audio-play-directive.js');
-
-
+const AlexaAudioClearDirective = require('./entity/alexa/directive/alexa-audio-clear-directive.js');
 
 const RequestGoogle = require('./entity/google/request_google.js');
 const ResponseGoogle = require('./entity/google/response_google.js');
@@ -68,6 +68,7 @@ module.exports = {
         directives: {
             Directive,
             AudioPlayDirective,
+	    AudioStopDirective,
         },
         alexa: {
             RequestAlexa,
@@ -82,6 +83,7 @@ module.exports = {
             AlexaCardModel,
 	    directives: {
 		AlexaAudioPlayDirective,
+		AlexaAudioClearDirective,
 	    }
         },
         google: {

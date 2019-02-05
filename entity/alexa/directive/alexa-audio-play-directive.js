@@ -33,6 +33,7 @@ class AlexaAudioPlayDirective extends AudioPlayDirective {
     getOffsetInMilliseconds(){
 	return this.offsetInMilliseconds;
     }
+
 }
 
 module.exports = AlexaAudioPlayDirective;

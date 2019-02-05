@@ -90,6 +90,7 @@ class AlexaModel {
      */
     initData(data, dataAlexa) {
         dataAlexa.setContext(data.context);
+        dataAlexa.setEvent(data);
         return dataAlexa;
 
     };
@@ -109,6 +110,7 @@ class AlexaModel {
 
         requestAlexa.setLang(getLang(event.request.locale));
         requestAlexa.setCountry(getCountry(event.request.locale));
+        requestAlexa.setLocale(event.request.locale);
         requestAlexa = this.initIntent(event, requestAlexa);
         return requestAlexa;
     }
@@ -130,6 +132,12 @@ class AlexaModel {
         }else{
             intentAlexa.setName(intentName);
         }
+        if (event.request.type.indexOf('CanFulfillIntentRequest') !== -1) {
+//            intentName = event.request.intent.name;
+	    intentAlexa.setSlots(event.request.intent.slots);
+        }
+
+
         intentAlexa.setType(this.getIntentType(intentName, event.request.type));
         requestAlexa.setIntent(intentAlexa);
         return requestAlexa;
@@ -138,6 +146,7 @@ class AlexaModel {
     getIntentType(name, type) {
         if (name === 'LaunchRequest') return intentTypes.TYPE_SPEECH;
         if (type === 'IntentRequest') return intentTypes.TYPE_SPEECH;
+        if (type === 'CanFulfillIntentRequest') return intentTypes.TYPE_SEO;
         if (name === 'System.ExceptionEncountered') return intentTypes.TYPE_ERROR;
         if(name.match(/^AudioPlayer./)){
             return intentTypes.TYPE_AUDIO;
@@ -191,9 +200,12 @@ class AlexaModel {
 		    return new Promise((resolve, reject) => {
 			responseAlexa.setCb(resolve);
 			requestAlexa.getResponse().setResponseBuilder(handlerInput.responseBuilder);
+			if (data.session){
+			    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+			    requestAlexa.getSession().setAttributes(sessionAttributes);
+			    requestAlexa.getSession().setAttributesManager(handlerInput.attributesManager);
+			}
 			self.processCallback(requestAlexa);
-			//TODO: get attributes!!!
-                	//if(requestAlexa.getSession()) requestAlexa.getSession().setAttributes(this.attributes);
 		    });
 		}
 	    };
@@ -216,7 +228,9 @@ class AlexaModel {
 		let res = skill.invoke(data, options.context);
 		res.then((d) => {
 		    options.callback(undefined, d);
-	    	    console.log('[RES]', d);
+	    	    console.log('[RES]', JSON.stringify(d));
+
+
 		});
 
 	    }});
@@ -234,12 +248,14 @@ class AlexaModel {
 
 function getCountry(locale) {
     let reg = /-(\w+)$/;
+    if(!locale) return ;
     let m = locale.match(reg);
     return m[1].toLowerCase();
 }
 
 function getLang(locale) {
     let reg = /^(\w+)-/;
+    if(!locale) return ;
     let m = locale.match(reg);
     return m[1].toLowerCase();
 }

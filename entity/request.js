@@ -18,6 +18,8 @@ class Request {
         this.intent = data.intent;
         this.device = data.device;
         this.lang = data.lang;
+        this.country = data.country;
+        this.locale = data.locale;
         this.created = Date.now();
     }
 
@@ -105,6 +107,21 @@ class Request {
     setCountry(country) {
         this.country = country;
     }
+
+    /**
+     * @returns {string} locale
+     */
+    getLocale() {
+        return this.locale;
+    }
+
+    /**
+     * @param {string} locale
+     */
+    setLocale(locale) {
+        this.locale = locale;
+    }
+
 
     process(appHandler) {
         return this.getResponse().process(appHandler, this);

@@ -5,6 +5,7 @@ const Message = require("../message/message");
 const CardAlexa = require("./card_alexa");
 
 const AlexaAudioPlayDirective = require("./directive/alexa-audio-play-directive");
+const AlexaAudioClearDirective = require("./directive/alexa-audio-clear-directive");
 const AudioStopDirective = require("../directive/audio-stop-directive");
 
 let self;
@@ -18,7 +19,6 @@ class ResponseAlexa extends Response {
     constructor(data) {
         super(data);
         self = this;
-//        this.alexa = data.alexa;
         this.skill = data.skill;
         this.cc = data.cc;
 
@@ -29,6 +29,7 @@ class ResponseAlexa extends Response {
     setResponseBuilder(responseBuilder){
         this.response = responseBuilder;
     }
+
 
     setCb(cb){
 	this.cb = cb;
@@ -73,12 +74,15 @@ class ResponseAlexa extends Response {
      */
     addDirective(directive) {
         this.directives.push(directive);
-	if(directive instanceof AlexaAudioPlayDirective){
-	    this.response.addAudioPlayerPlayDirective(directive.getBehaviour(), directive.getUrl(), directive.getToken(), directive.getExpectedPreviousToken(), directive.getOffsetInMilliseconds());
-	}
 
-	if(directive instanceof AudioStopDirective){
+	if(directive instanceof AlexaAudioPlayDirective){
+	    this.response.addAudioPlayerPlayDirective(directive.getBehaviour(), directive.getUrl(), directive.getToken(), directive.getOffsetInMilliseconds() || 0, directive.getExpectedPreviousToken() || null);
+	}else if(directive instanceof AudioStopDirective){
 	    this.response.addAudioPlayerStopDirective();
+	}else if(directive instanceof AlexaAudioClearDirective){
+	    this.response.addAudioPlayerClearQueueDirective(directive.getClearBehavior());
+	}else{
+	    this.response.addDirective(directive.getData());
 	}
     }
 
@@ -99,17 +103,12 @@ class ResponseAlexa extends Response {
     }
 
     sendSuccess() {
-        //this.alexa.emit(':responseReady');
-	//TODO: send to interceptor OK
 	this.cb();
         super.sendSuccess();
     }
 
     sendError(error) {
-        //this.alexa.emit(':responseReady');
-	//TODO: send to interceptor OK
 	this.cb();
-
         super.sendError(error);
     }
 
@@ -118,22 +117,20 @@ class ResponseAlexa extends Response {
      * @returns {Promise<any>}
      */
     process(appHandler, request){
-        //this.alexa.execute();
         this.cc();
         return super.process();
     }
 
     shouldEndSession(should) {
-        //this.response._responseObject.response.shouldEndSession = should;
+	this.response.withShouldEndSession(should);
         super.shouldEndSession(should);
     }
-    
-    setResponseObject(obj){
-        this.response._responseObject = obj;
+
+    withCanFulfillIntent(data){
+	this.response.withCanFulfillIntent(data);
     }
 
     getResponse(){
-//        return this.response._responseObject;
 	return this.response.getResponse();
     }
 }

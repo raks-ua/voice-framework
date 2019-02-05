@@ -76,6 +76,10 @@ class Intent {
     setValue(key, value) {
         this.values[key] = value;
     }
+
+    getValues(){
+	return this.values;
+    }
 }
 
 module.exports = Intent;

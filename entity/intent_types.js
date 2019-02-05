@@ -8,6 +8,7 @@ let intentTypes = {
     TYPE_VIDEO: 'video',
     TYPE_EVENT: 'event',
     TYPE_API: 'api',
+    TYPE_SEO: 'seo',
     TYPE_ERROR: 'error'
 };
 
