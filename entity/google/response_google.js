@@ -1,12 +1,59 @@
 'use strict';
 
 const Response = require("../response");
+const {Suggestions} = require('actions-on-google');
 
 class ResponseGoogle extends Response {
 
     constructor(data = {}) {
         super(data);
+	this.app = data.app;
+	this.cc = data.cc;
     }
+
+    setCb(cb){
+	this.cb = cb;
+    }
+
+    setConv(conv){
+	this.convData = conv;
+    }
+
+
+    /**
+     *
+     * @param message {Message}
+     */
+    ask(message) {
+        let reprompt = message.getMessageReprompt('ssml');
+        let msg = message.getMessage('ssml');
+        msg = msg.replace(/<speak>/ig, '');
+        msg = msg.replace(/<\/speak>/ig, '');
+
+        this.convData.conv.ask(msg);
+/*
+        if(reprompt) {
+            reprompt = reprompt.replace(/<speak>/ig, '');
+            reprompt = reprompt.replace(/<\/speak>/ig, '');
+	    this.response.reprompt(reprompt);
+        }
+*/
+        super.ask(message);
+    }
+
+    /**
+     *
+     * @param message {Message}
+     */
+    tell(message) {
+        let msg = message.getMessage('ssml');
+        msg = msg.replace(/<speak>/ig, '');
+        msg = msg.replace(/<\/speak>/ig, '');
+        this.convData.conv.close(msg);
+        super.tell(message);
+    }
+
+
 
     setResultCallback(callback) {
         this.resultCallback = callback;
@@ -17,57 +64,34 @@ class ResponseGoogle extends Response {
      * @returns {Promise<any>}
      */
     process(appHandler, googleRequest) {
+	this.cc();
         return super.process(appHandler, googleRequest);
     }
 
     sendSuccess() {
-        this.resultCallback(undefined, this.getRequest());
+	this.cb();
         super.sendSuccess();
     }
 
     sendError(error) {
-        this.resultCallback(error, this.getRequest());
+	this.cb();
         super.sendError(error);
     }
 
-    getResponse(){
-        let d = {
-            "speech": '',
-            "displayText": ''
-        };
-        try {
-            let displayText = this.message.getMessage('text');
-            let displaySSML = this.message.getMessage('ssml');
-            let resp = {
-                "richResponse": {
-                    "items": [
-                        {
-                            "simpleResponse": {
-                                "ssml": displaySSML,
-                                "displayText": displayText
-                            }
-                        }
-                    ]
-                }
-            };
-
-            let suggestions = this.request.getSession().getParam('suggestions');
-            if (suggestions && suggestions.length > 0) {
-                resp.richResponse.suggestions = suggestions;
-            }
-            d = {
-                "speech": displaySSML,
-                "displayText": displayText,
-                "data": {
-                    "google": resp
-                }
-            };
-        }catch(e){
-            console.log('[ERR ResponseGoogle]', 'not formed', err);
-        }
-        return d;
+    setSuggestionChips(chips){
+	this.suggestionChips = chips;
+	this.convData.conv.ask(new Suggestions(chips));
     }
 
+    setCompletePurchase(purchase){
+	this.completePurchase = purchase;
+	//console.log('[PURCHASE]', purchase);
+	this.convData.conv.ask(purchase);
+    }
+
+    getResponse(){
+
+    }
 
 }
 module.exports = ResponseGoogle;

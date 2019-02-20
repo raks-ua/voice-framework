@@ -9,7 +9,9 @@ let intentTypes = {
     TYPE_EVENT: 'event',
     TYPE_API: 'api',
     TYPE_SEO: 'seo',
-    TYPE_ERROR: 'error'
+    TYPE_ERROR: 'error',
+    TYPE_ALEXA: 'alexa',
+    TYPE_GOOGLE: 'google'
 };
 
 let intentSubTypes = {

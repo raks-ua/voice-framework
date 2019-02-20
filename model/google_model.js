@@ -1,6 +1,5 @@
 'use strict';
 
-let self;
 
 let UserGoogle = require('../entity/google/user_google.js');
 let SessionGoogle = require('../entity/google/session_google.js');
@@ -9,12 +8,29 @@ let DataGoogle = require('../entity/google/data_google.js');
 let RequestGoogle = require('../entity/google/request_google.js');
 let ResponseGoogle = require('../entity/google/response_google.js');
 let {intentTypes, intentSubTypes} = require('../entity/intent_types.js');
+let self;
+const {
+    dialogflow,
+    actionssdk
+} = require('actions-on-google');
+
+//https://developers.google.com/actions/reference/nodejsv2/overview
 
 class GoogleModel {
 
-    constructor(processCallback) {
-        self = this;
+    constructor(conversationalType, processCallback) {
         this.processCallback = processCallback;
+	if(['dialogflow', 'actionssdk'].indexOf(conversationalType) === -1) throw 'Allowed only conversationalType \'dialogflow\', \'actionssdk\'';
+	this.app;
+	self = this;
+	switch (conversationalType) {
+	    case "dialogflow":
+		this.app = dialogflow({debug: true});
+	    break;
+	    case "actionssdk":
+		this.app = actionssdk({debug: true});
+	    break;
+	}
     }
 
     /**
@@ -29,35 +45,19 @@ class GoogleModel {
         let userGoogle = new UserGoogle();
         let dataGoogle = new DataGoogle();
 
-        let version = 1;
-        if (data.originalDetectIntentRequest) {
-            version = parseInt(data.originalDetectIntentRequest.version);
+
+        this.initSession(data, sessionGoogle);
+        this.initUser(data, userGoogle);
+        this.initRequest(data, requestGoogle);
+        if (data.result && data.result.contexts) {
+            this.initData(data, dataGoogle);
+            requestGoogle.setData(dataGoogle);
         }
 
-        if (version === 1) {
-
-            this.initSession(data, sessionGoogle);
-            this.initUser(data, userGoogle);
-            this.initRequest(data, requestGoogle);
-            if (data.result.contexts) {
-                this.initData(data, dataGoogle);
-                requestGoogle.setData(dataGoogle);
-            }
-
-        } else if (version === 2) {
-            this.initSessionV2(data, sessionGoogle);
-            this.initUserV2(data, userGoogle);
-            this.initRequestV2(data, requestGoogle);
-            if (data.result && data.result.contexts) {
-                this.initData(data, dataGoogle);
-                requestGoogle.setData(dataGoogle);
-            }
-        }
         requestGoogle.setSession(sessionGoogle);
         requestGoogle.setUser(userGoogle);
 
         this.initResponse(data, options, requestGoogle);
-        //console.log(requestGoogle);
         return requestGoogle;
     };
 
@@ -69,25 +69,9 @@ class GoogleModel {
      * @returns {SessionGoogle}
      */
     initSession(data, sessionGoogle) {
-
-
-        //sessionGoogle.setSessionId(data.originalRequest.source + '.' + data.sessionId + '.' + data.originalRequest.data.user.userId);
-        if (data.sessionId  && data.originalRequest) {
-            sessionGoogle.setSessionId(data.originalRequest.source + '.' + data.sessionId + '.' + data.originalRequest.data.user.userId);
-            sessionGoogle.setNew(data.originalRequest.data.conversation.type);
-        }
-        return sessionGoogle;
-    }
-
-    /**
-     *
-     * @param {Object} data
-     * @param {SessionGoogle} sessionGoogle
-     * @returns {SessionGoogle}
-     */
-    initSessionV2(data, sessionGoogle) {
         if (data.originalDetectIntentRequest) {
             sessionGoogle.setSessionId(data.originalDetectIntentRequest.payload.conversation.conversationId + '.' + data.originalDetectIntentRequest.payload.user.userId);
+	    sessionGoogle.setConversationId(data.originalDetectIntentRequest.payload.conversation.conversationId);
             sessionGoogle.setNew(data.originalDetectIntentRequest.payload.conversation.type);
         }
         return sessionGoogle;
@@ -111,21 +95,9 @@ class GoogleModel {
      * @returns {UserGoogle}
      */
     initUser(data, userGoogle) {
-        if (data.originalRequest && data.originalRequest.data.user.userId) {
-            userGoogle.setUserId(data.originalRequest.data.user.userId);
-        }
-        return userGoogle;
-    }
-
-    /**
-     *
-     * @param {Object} data
-     * @param {UserGoogle} userGoogle
-     * @returns {UserGoogle}
-     */
-    initUserV2(data, userGoogle) {
         if (data.originalDetectIntentRequest && data.originalDetectIntentRequest.payload.user.userId) {
             userGoogle.setUserId(data.originalDetectIntentRequest.payload.user.userId);
+	    userGoogle.setPackageEntitlements(data.originalDetectIntentRequest.payload.user.packageEntitlements);
         }
         return userGoogle;
     }
@@ -137,27 +109,6 @@ class GoogleModel {
      * @returns {RequestGoogle}
      */
     initRequest(data, requestGoogle) {
-        if (data.originalRequest) {
-            requestGoogle.setRequestId(data.id);
-            requestGoogle.setLang(getLang(data.originalRequest.data.user.locale));
-            requestGoogle.setCountry(getCountry(data.originalRequest.data.user.locale));
-
-            let intentGoogle = new IntentGoogle();
-            intentGoogle.setParameters(data.result.parameters);
-            intentGoogle.setName(data.result.metadata.intentName);
-            intentGoogle.setType(intentTypes.TYPE_SPEECH);
-            requestGoogle.setIntent(intentGoogle);
-        }
-        return requestGoogle;
-    }
-
-    /**
-     *
-     * @param {Object} data
-     * @param {RequestGoogle} requestGoogle
-     * @returns {RequestGoogle}
-     */
-    initRequestV2(data, requestGoogle) {
         if (data.originalDetectIntentRequest) {
             requestGoogle.setRequestId(data.responseId);
             requestGoogle.setLang(getLang(data.queryResult.languageCode));
@@ -165,8 +116,21 @@ class GoogleModel {
 
             let intentGoogle = new IntentGoogle();
             intentGoogle.setParameters(data.queryResult.parameters);
+            if(data.originalDetectIntentRequest && data.originalDetectIntentRequest.payload && data.originalDetectIntentRequest.payload.inputs) 
+		intentGoogle.setArguments(data.originalDetectIntentRequest.payload.inputs);
+
             intentGoogle.setName(data.queryResult.intent.displayName);
-            intentGoogle.setType(intentTypes.TYPE_SPEECH);
+	    let mActions = data.queryResult.intent.displayName.match(/^actions\.intent\.(.*)/);
+	    let mDialog = data.queryResult.intent.displayName.match(/^actions\_intent\_(.*)/);
+    	    intentGoogle.setType(intentTypes.TYPE_SPEECH);
+
+	    if(mActions){
+        	intentGoogle.setType(intentTypes.TYPE_GOOGLE);
+        	intentGoogle.setName(mActions[1]);
+	    }else if(mDialog){
+        	intentGoogle.setType(intentTypes.TYPE_GOOGLE);
+        	intentGoogle.setName(mDialog[1]);
+	    }
             this.initQueryText(data, intentGoogle);
             requestGoogle.setIntent(intentGoogle);
             if(data.originalDetectIntentRequest && data.originalDetectIntentRequest.payload && data.originalDetectIntentRequest.payload.surface)
@@ -200,11 +164,29 @@ class GoogleModel {
      * @returns {ResponseGoogle}
      */
     initResponse(data, options, requestGoogle) {
-        let responseGoogle = new ResponseGoogle({request: requestGoogle});
-        requestGoogle.setResponse(responseGoogle);
-        requestGoogle.getResponse().setResultCallback(options.callback);
+//	console.log('[options]', options);
+	let responseGoogle;
+
+	this.app.fallback((conv, params, option) => {
+	    return new Promise((resolve, reject) => {
+		//console.log('[ARGUMENTS]', conv.arguments, params);
+		//requestGoogle.getIntent().setArguments(conv.arguments);
+		//requestGoogle.getIntent().setParameters(params);
+		//requestGoogle.getIntent().setOption(option);
+		responseGoogle.setCb(resolve);
+		responseGoogle.setConv({conv, params, option});
+		//self.processCallback(requestGoogle);
+	    });
+	});
+
+	responseGoogle = new ResponseGoogle({request: requestGoogle, app: this.app, cc: () => {
+	    requestGoogle.getResponse().app(options.request, options.response);
+	}});
+	requestGoogle.setResponse(responseGoogle);
         return requestGoogle;
     }
+
+
 }
 
 

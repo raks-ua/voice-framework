@@ -12,6 +12,8 @@ class IntentGoogle extends Intent {
         super(data);
         if (data.parameters) this.setParameters(data.parameters);
         this.queryText = '';
+	this.args = {};
+	this.option;
     }
 
 
@@ -33,6 +35,36 @@ class IntentGoogle extends Intent {
 
     getQueryText(){
         return this.queryText;
+    }
+
+    setArguments(inputs){
+	let items = {};
+	for(let i = 0; i < inputs.length; i++){
+    	    if (!inputs[i].arguments) continue;
+	    for(let k = 0; k < inputs[i].arguments.length; k++){
+		let argument = inputs[i].arguments[k];
+		if(!argument.name) continue;
+		items[argument.name] = argument.extension;
+	    }
+	}
+	this.args = items;
+    }
+
+    getArguments(){
+	return this.args;
+    }
+
+    getArgument(name){
+	if(!this.args) return undefined;
+	return this.args[name];
+    }
+
+    setOption(option){
+	this.option = option;
+    }
+
+    getOption(){
+	return this.option;
     }
 }
 

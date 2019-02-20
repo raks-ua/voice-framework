@@ -249,6 +249,34 @@ class EventDispatcher {
         h.process();
     }
 
+/**
+     *
+     * @param app
+     * @param event
+     * @param callback
+     */
+    handleGoogleServerAppRequest(event, request, response, callback) {
+        let handlerError;
+        let h;
+        let appCallback = (error, data) => {
+            if (error) {
+                return h.stop(error);
+            }
+            if (handlerError) error = handlerError;
+            callback(error, data);
+        };
+        h = this.handleRequest('google', {
+            appEvent: event,
+            appRequest: request,
+            appResponse: response,
+            appCallback
+        });
+        handlerError = h.error;
+        h.process();
+    }
+
+
+
     /**
      *
      * @param callback

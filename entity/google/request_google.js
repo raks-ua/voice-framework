@@ -38,7 +38,7 @@ class RequestGoogle extends Request {
     }
 
     setSurfaces(surfaces) {
-        console.log('[SURFACES]', surfaces);
+        //console.log('[SURFACES]', surfaces);
         this.surfaces = surfaces;
     }
 

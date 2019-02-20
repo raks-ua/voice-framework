@@ -26,6 +26,13 @@ class SessionGoogle extends Session {
         this.isNew = isNew;
     }
 
+    setConversationId(conversationId){
+	this.conversationId = conversationId;
+    }
+
+    getConversationId(){
+	return this.conversationId;
+    }
 }
 
 module.exports = SessionGoogle;

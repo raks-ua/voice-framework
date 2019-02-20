@@ -38,6 +38,7 @@ const SessionGoogle = require('./entity/google/session_google.js');
 const UserGoogle = require('./entity/google/user_google.js');
 const IntentGoogle = require('./entity/google/intent_google.js');
 const DataGoogle = require('./entity/google/data_google.js');
+const PaymentGoogleModel = require('./model/payment_google_model.js');
 
 const RequestClova = require('./entity/clova/request_clova.js');
 const ResponseClova = require('./entity/clova/response_clova.js');
@@ -93,6 +94,7 @@ module.exports = {
             UserGoogle,
             IntentGoogle,
             DataGoogle,
+	    PaymentGoogleModel
         },
         clova: {
             RequestClova,

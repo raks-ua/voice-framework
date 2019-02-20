@@ -9,7 +9,6 @@ let Router = require('../entity/router/router');
 let UnknownRouter = require('../entity/router/unknown-router');
 let {intentTypes} = require('../entity/intent_types');
 
-
 let self;
 
 class AppModel {
@@ -22,7 +21,8 @@ class AppModel {
         self.handlerUnknown = undefined;
         self.initHandlers();
         self.addApp('alexa', new AlexaModel(self.config.alexa.appId, self.appProcess));
-        self.addApp('google', new GoogleModel(self.appProcess));
+        if(self.config.google) self.addApp('google', new GoogleModel(self.config.google.conversationalType, self.appProcess));
+	
         self.addApp('clova', new ClovaModel(self.appProcess));
         self.addApp('rpc', new RPCModel(self.appProcess));
     }
