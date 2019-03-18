@@ -42,7 +42,9 @@ class AlexaModel {
                 this.initUser(data, userAlexa);
                 requestAlexa.setUser(userAlexa);
             }
-        }
+        }else{
+            requestAlexa.setSession(sessionAlexa);
+	}
 
         if (data.context) {
             this.initData(data, dataAlexa);

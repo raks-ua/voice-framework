@@ -70,7 +70,12 @@ class DataAlexa extends Data {
 	
     }
 
-    
+    hasDisplay(){
+	//response.event.context.System.device.supportedInterfaces.Display
+	if(!this.getContext() || !this.getContext().System || !this.getContext().System.device || !this.getContext().System.device.supportedInterfaces || !this.getContext().System.device.supportedInterfaces.Display) return false;
+	return true;
+    }
+
 
 }
 
