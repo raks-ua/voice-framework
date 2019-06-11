@@ -44,6 +44,10 @@ class AlexaModel {
             }
         }else{
             requestAlexa.setSession(sessionAlexa);
+	    if(data.context && data.context.System &&  data.context.System.user){
+		this.initUser(data, userAlexa);
+                requestAlexa.setUser(userAlexa);
+	    }
 	}
 
         if (data.context) {
@@ -78,8 +82,12 @@ class AlexaModel {
      * @returns {UserAlexa}
      */
     initUser(event, userAlexa) {
-        userAlexa.setAccessToken(event.session.user.accessToken);
-        userAlexa.setUserId(event.session.user.userId);
+        if(event.session && event.session.user) {
+	    userAlexa.setAccessToken(event.session.user.accessToken);
+    	    userAlexa.setUserId(event.session.user.userId);
+	}else if (event.context && event.context.System &&  event.context.System.user){
+	    userAlexa.setUserId(event.context.System.user.userId);
+	}
         return UserAlexa;
 
     }

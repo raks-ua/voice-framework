@@ -76,7 +76,7 @@ class ResponseAlexa extends Response {
         this.directives.push(directive);
 
 	if(directive instanceof AlexaAudioPlayDirective){
-	    this.response.addAudioPlayerPlayDirective(directive.getBehaviour(), directive.getUrl(), directive.getToken(), directive.getOffsetInMilliseconds() || 0, directive.getExpectedPreviousToken() || null);
+	    this.response.addAudioPlayerPlayDirective(directive.getBehaviour(), directive.getUrl(), directive.getToken(), directive.getOffsetInMilliseconds() || 0, directive.getExpectedPreviousToken() || null, directive.getMetadata());
 	}else if(directive instanceof AudioStopDirective){
 	    this.response.addAudioPlayerStopDirective();
 	}else if(directive instanceof AlexaAudioClearDirective){

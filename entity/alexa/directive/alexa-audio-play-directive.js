@@ -6,6 +6,7 @@ class AlexaAudioPlayDirective extends AudioPlayDirective {
 	super();
 	this.token = data.token || uuid();
 	this.url = data.url;
+	this.metadata = data.metadata;
 	this.offsetInMilliseconds = data.offsetInMilliseconds || 0;
 	this.expectedPreviousToken = data.expectedPreviousToken;
     }
@@ -17,6 +18,11 @@ class AlexaAudioPlayDirective extends AudioPlayDirective {
     getToken(){
 	return this.token;
     }
+
+    getMetadata(){
+	return this.metadata;
+    }
+
 
     setExpectedPreviousToken(token){
 	this.expectedPreviousToken = token;
