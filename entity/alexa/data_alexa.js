@@ -76,7 +76,21 @@ class DataAlexa extends Data {
 	return true;
     }
 
+    hasVideoApp(){
+	//response.event.context.System.device.supportedInterfaces.Display
+	if(!this.getContext() || !this.getContext().System || !this.getContext().System.device || !this.getContext().System.device.supportedInterfaces || !this.getContext().System.device.supportedInterfaces.VideoApp) return false;
+	return true;
+    }
 
+    getViewport(){
+	if(!this.getContext() || !this.getContext().Viewport) return undefined;
+	return this.getContext().Viewport;
+    }
+
+    hasPresentationAPL(){
+	if(!this.getContext() || !this.getContext().System || !this.getContext().System.device || !this.getContext().System.device.supportedInterfaces || !this.getContext().System.device.supportedInterfaces['Alexa.Presentation.APL']) return false;
+	return true;
+    }
 }
 
 module.exports = DataAlexa;
