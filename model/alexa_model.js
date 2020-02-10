@@ -15,7 +15,6 @@ const Alexa = require('ask-sdk');
 class AlexaModel {
 
     constructor(appId, processCallback) {
-//	console.log('[processCallback]', processCallback);
         self = this;
         this.appId = appId;
         this.processCallback = processCallback;
@@ -238,7 +237,7 @@ class AlexaModel {
 		let res = skill.invoke(data, options.context);
 		res.then((d) => {
 		    options.callback(undefined, d);
-	    	    console.log('[RES]', JSON.stringify(d));
+//	    	    console.log('[RES]', JSON.stringify(d));
 
 
 		});
