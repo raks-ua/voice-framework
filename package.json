@@ -1,9 +1,7 @@
 {
-  "name": "voice-framework",
+  "name": "@bestapps/voice-framework",
   "description": "Voice Framework",
-  "author": {
-    "name": "Vitaliy Grinchishin"
-  },
+  "author": "Vitaliy Grinchishin",
   "homepage": "https://github.com/raks-ua/voice-framework",
   "keywords": [
     "alexa",
@@ -22,6 +20,16 @@
     "actions-on-google": "^2.5.0"
   },
   "main": "index.js",
-  "readmeFilename": "readme.md",
-  "version": "1.0.14"
+  "version": "1.0.15",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raks-ua/voice-framework.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/raks-ua/voice-framework/issues"
+  }
 }

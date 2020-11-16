@@ -91,6 +91,26 @@ class DataAlexa extends Data {
 	if(!this.getContext() || !this.getContext().System || !this.getContext().System.device || !this.getContext().System.device.supportedInterfaces || !this.getContext().System.device.supportedInterfaces['Alexa.Presentation.APL']) return false;
 	return true;
     }
+
+    getSystemApiEndpoint(){
+      if(!this.getContext() || !this.getContext().System) return undefined;
+
+      let apiEndpoint = this.getContext().System.apiEndpoint;
+      if(!apiEndpoint) return ;
+      apiEndpoint = apiEndpoint.replace('https://', '');
+      apiEndpoint = apiEndpoint.replace('http://', '');
+      return apiEndpoint;
+    }
+
+    getRequestError(){
+      if(!this.getEvent() || !this.getEvent().request || !this.getEvent().request.error) return undefined;
+      return this.getEvent().request.error;
+    }
+
+    getRequestArguments(){
+      if(!this.getEvent() || !this.getEvent().request) return [];
+      return this.getEvent().request['arguments'] || [];
+    }
 }
 
 module.exports = DataAlexa;
